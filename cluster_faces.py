@@ -8,6 +8,8 @@ import numpy as np
 import argparse
 import pickle
 import cv2
+from datetime import datetime
+import os
 
 # construct the argument parser and parse the arguments
 ap = argparse.ArgumentParser()
@@ -15,7 +17,15 @@ ap.add_argument("-e", "--encodings", required=True,
 	help="path to serialized db of facial encodings")
 ap.add_argument("-j", "--jobs", type=int, default=-1,
 	help="# of parallel jobs to run (-1 will use all CPUs)")
+ap.add_argument("-o", "--output", default=str(datetime.now().strftime("%Y_%m_%d_%H_%M_%S")), #type=int, default=-1,
+	help="# of parallel jobs to run (-1 will use all CPUs)")
+	
 args = vars(ap.parse_args())
+
+
+if not os.path.exists(args["output"]):
+			os.makedirs(args["output"])
+		
 
 # load the serialized face encodings + bounding box locations from
 # disk, then extract the set of encodings to so we can cluster on
@@ -67,4 +77,5 @@ for labelID in labelIDs:
 	title = "Face ID #{}".format(labelID)
 	title = "Unknown Faces" if labelID == -1 else title
 	cv2.imshow(title, montage)
+	cv2.imwrite(args["output"]+'/'+str(title)+'.png', montage)
 	cv2.waitKey(0)
