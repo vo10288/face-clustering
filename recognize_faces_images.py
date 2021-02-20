@@ -11,6 +11,7 @@ import cv2
 import numpy as np
 from datetime import datetime
 import os
+import hashlib
 				
 # construct the argument parser and parse the arguments
 ap = argparse.ArgumentParser()
@@ -84,10 +85,28 @@ for immagine in images:
 
 	global contatores
 	contatores = 0
+	###### CALCOLO HASH #######
+	
+	
+	file1 = (str(args["images"])+'/'+str(immagine))      #,"r", encoding='utf-8')
+	openFile1 = open(file1, "rb")
+	readFile1 = openFile1.read()
+	
+	md5hash1 = hashlib.md5(readFile1)
+	md5file1 = md5hash1.hexdigest()
+	
+	sha1hash1 = hashlib.sha1(readFile1)
+	shafile1 = sha1hash1.hexdigest()
+	
+	openFile1.close()
+	
+	############################
 
 	csv = open(oggi+'/'+unico+'/risultato.csv','a')
 	# loop over the facial embeddings
-	csv.write("immagine ricercata ;"+str(args["images"])+'/'+str(immagine)+'\n')# args["images"]+'/'+str(immagine)
+	
+	
+	csv.write("0 immagine ricercata ;"+str(args["images"])+'/'+str(immagine)+';'+str(md5file1)+';'+str(shafile1)+'\n')# args["images"]+'/'+str(immagine)
 	for dat in dats:
 		contatore = (contatore+1)
 		# attempt to match each face in the input image to our known
@@ -133,7 +152,20 @@ for immagine in images:
 			cv2.imshow(str(nomes[contatore-1]), target)
 			cv2.imwrite(oggi+'/'+unico+'/'+str(contatore-1)+'.png', target)
 			contatores = contatores+1
-			csv.write(str(contatores)+' immagine matching '+';'+str(nomes[contatore-1])+'\n')
+			########## calcolo HASH #######
+			file1 = (str(nomes[contatore-1]))      #,"r", encoding='utf-8')
+			openFile1 = open(file1, "rb")
+			readFile1 = openFile1.read()
+	
+			md5hash1 = hashlib.md5(readFile1)
+			md5file1 = md5hash1.hexdigest()
+	
+			sha1hash1 = hashlib.sha1(readFile1)
+			shafile1 = sha1hash1.hexdigest()
+	
+			openFile1.close()
+			###############################
+			csv.write(str(contatores)+' immagine matching '+';'+str(nomes[contatore-1])+';'+str(md5file1)+';'+str(shafile1)+'\n')
 			cv2.waitKey(0)
 	csv.close()
 	# show the output image
